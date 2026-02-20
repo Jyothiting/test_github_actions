@@ -30,9 +30,8 @@ jobs:
 
       # 5️⃣ Build project
       - name: Build Project
-        run: |
-          mkdir build
-          cp index.html build/
+        run: 
+          npm run build
 
       # 6️⃣ Copy build folder to EC2 (home directory first)
       - name: Copy Files to EC2
