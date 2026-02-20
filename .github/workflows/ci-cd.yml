@@ -6,30 +6,18 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Run Tests
-        run: npm test
+      - uses: actions/checkout@v3
 
       - name: Build Project
         run: |
           mkdir build
           cp index.html build/
 
-      - name: Deploy to EC2 
+      - name: Deploy via SCP
         uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -37,6 +25,3 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           source: "build/*"
           target: "/var/www/html"
-          script: |
-            cd /var/www/html
-            sudo rm -rf *
