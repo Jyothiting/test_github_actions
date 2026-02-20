@@ -6,23 +6,52 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Node.js
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # 3️⃣ Install dependencies
       - name: Install Dependencies
         run: npm install
 
+      # 4️⃣ Run tests
       - name: Run Tests
         run: npm test
 
-      - name: Build App
-        run: npm run build
+      # 5️⃣ Build project
+      - name: Build Project
+        run: |
+          mkdir build
+          cp index.html build/
+
+      # 6️⃣ Copy build folder to EC2 (home directory first)
+      - name: Copy Files to EC2
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "build/*"
+          target: "/home/ubuntu/build"
+
+      # 7️⃣ Move files to Nginx folder using sudo
+      - name: Deploy to Nginx
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            sudo rm -rf /var/www/html/*
+            sudo mv /home/ubuntu/build/* /var/www/html/
+            sudo systemctl restart nginx
