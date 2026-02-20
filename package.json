@@ -1,0 +1,14 @@
+{
+  "name": "github-actions-task",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node test.js",
+    "build": "echo Build successful"
+  },
+  "description": "",
+  "main": "app.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
